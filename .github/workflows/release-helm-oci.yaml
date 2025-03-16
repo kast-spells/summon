@@ -32,7 +32,7 @@ jobs:
       - name: Push OCI image to GitHub Container Registry
         run: |
           CHART_VERSION=$(echo $env.TAG_NAME | sed 's/summon-//')
-          helm push ${{ env.TAG_NAME }}.tgz oci://ghcr.io/kast-spells/summon --version $CHART_VERSION
+          helm push ${{ env.TAG_NAME }}.tgz oci://ghcr.io/kast-spells/summon
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
