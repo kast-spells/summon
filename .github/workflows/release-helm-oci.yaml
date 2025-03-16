@@ -28,7 +28,6 @@ jobs:
       - name: Package Helm Chart
         run: |
           helm package .
-          CHART_FILE=$(ls mychart-*.tgz)
 
       - name: Push OCI image to GitHub Container Registry
         run: |
