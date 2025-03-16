@@ -1,0 +1,45 @@
+name: Publish Helm Chart OCI
+
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  build-and-publish:
+    name: Build and Publish Helm OCI
+    runs-on: ubuntu-latest
+
+    permissions:
+      packages: write
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract tag name
+        id: get_tag
+        run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+      
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io --username ${{ github.actor }} --password-stdin
+
+      - name: Package Helm Chart
+        run: |
+          helm package .
+          CHART_FILE=$(ls mychart-*.tgz)
+
+      - name: Push OCI image to GitHub Container Registry
+        run: |
+          CHART_VERSION=$(echo $TAG_NAME | sed 's/summon-//')
+          helm push ${{ env.TAG_NAME }}.tgz oci://ghcr.io/kast-spells/summon --version $CHART_VERSION
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ env.TAG_NAME }}.tgz
+          tag_name: ${{ TAG_NAME }}
+          name: Release ${{ TAG_NAME }}
+          draft: false
+          prerelease: false
