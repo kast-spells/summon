@@ -6,13 +6,13 @@ lexicon:
       region: us-west-1
       provider: aws
       default: book
-    clusterURL: https://AE280A8EC0804A46D65241CEED3D3454.gr7.us-west-1.eks.amazonaws.com
+    clusterURL: https://EXAMPLEOIDCID1234567890.gr7.us-west-1.eks.amazonaws.com
     oidcID: SARLANGAOIDC
     region: us-west-1
-    accountID: "31232132131"
+    accountID: "123456789012"
   cert-manager-route53-policy:
     type: aws-iam-policy
-    arn: arn:aws:iam::31232132131:policy/ack-eks-cert-manager-route53
+    arn: arn:aws:iam::123456789012:policy/ack-eks-cert-manager-route53
     labels:
       resources: route53
       environment: development
@@ -27,7 +27,7 @@ glyphs:
       namespace: cert-manager
       path: /ack/
       description: "IAM Role for cert-manager and external-dns to manage Route53 DNS records"
-      permissionsBoundary: arn:aws:iam::31232132131:policy/ack/eks-ack-permissions-boundary
+      permissionsBoundary: arn:aws:iam::123456789012:policy/ack/eks-ack-permissions-boundary
       oidcID: 
       region: us-west-1
       serviceAccounts:

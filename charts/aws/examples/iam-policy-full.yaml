@@ -2,7 +2,7 @@ glyphs:
   aws:
     cert-manager-route53-policy:
       type: iam-policy
-      name: ack-rwg-dev-eks-cert-manager-route53
+      name: my-cert-manager-route53-policy
       path: /ack/
       description: "IAM Policy for cert-manager to manage Route53 DNS records"
       resources:

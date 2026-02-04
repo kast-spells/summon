@@ -1,0 +1,24 @@
+name: ack-rds-controller-test
+
+lexicon:
+  test-eks-cluster:
+    type: k8s-cluster
+    labels:
+      environment: dev
+      default: book
+    oidcID: EXAMPLEOIDCID1234567890
+    region: us-west-1
+    accountID: "123456789012"
+
+glyphs:
+  aws:
+    my-ack-rds-controller:
+      type: ack-rds-controller
+      permissionsBoundary: arn:aws:iam::123456789012:policy/my-permissions-boundary
+      tags:
+        - key: Name
+          value: my-ack-rds-controller
+        - key: ManagedBy
+          value: ack-iam-controller
+        - key: Environment
+          value: dev

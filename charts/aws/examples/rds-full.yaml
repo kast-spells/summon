@@ -1,0 +1,146 @@
+lexicon:
+  # Subnet Group in lexicon for runicIndexer lookup
+  prod-subnet-group:
+    type: aws-db-subnet-group
+    name: prod-rds-subnets
+    labels:
+      environment: prod
+      region: us-west-1
+      default: book
+
+  # Parameter Group in lexicon
+  prod-param-group:
+    type: aws-db-parameter-group
+    name: prod-postgres-params
+    labels:
+      engine: postgres
+      environment: prod
+      default: book
+
+  # Security Group in lexicon
+  prod-security-group:
+    type: aws-security-group
+    id: sg-prod-rds-123
+    labels:
+      access: database
+      environment: prod
+      default: book
+
+  # Subnets in lexicon for subnet group creation
+  prod-subnet-a:
+    type: aws-subnet
+    id: subnet-prod-a
+    labels:
+      az: us-west-1a
+      environment: prod
+      tier: data
+
+  prod-subnet-b:
+    type: aws-subnet
+    id: subnet-prod-b
+    labels:
+      az: us-west-1b
+      environment: prod
+      tier: data
+
+glyphs:
+  aws:
+    # DB Parameter Group - with tags
+    prod-params:
+      type: db-parameter-group
+      name: prod-postgres-params
+      family: postgres15
+      description: "Production PostgreSQL 15 parameters"
+      parameters:
+        max_connections: "500"
+        shared_buffers: "1GB"
+        effective_cache_size: "3GB"
+        maintenance_work_mem: "256MB"
+        checkpoint_completion_target: "0.9"
+        wal_buffers: "64MB"
+        random_page_cost: "1.1"
+        effective_io_concurrency: "200"
+        work_mem: "16MB"
+      tags:
+        - key: Environment
+          value: prod
+        - key: ManagedBy
+          value: kast-system
+
+    # DB Subnet Group - using runicIndexer for subnets
+    prod-subnets:
+      type: db-subnet-group
+      name: prod-rds-subnets
+      description: "Production RDS subnet group"
+      subnets:
+        - selector:
+            environment: prod
+            tier: data
+      tags:
+        - key: Environment
+          value: prod
+        - key: ManagedBy
+          value: kast-system
+
+    # DB Instance - full configuration with runicIndexer
+    prod-postgres:
+      type: db-instance
+      name: prod-postgres-instance
+      engine: postgres
+      engineVersion: "15.4"
+      instanceClass: db.r6g.large
+      allocatedStorage: 100
+      maxAllocatedStorage: 500
+      storageType: gp3
+      iops: 3000
+      storageThroughput: 125
+      storageEncrypted: true
+      kmsKeyID: arn:aws:kms:us-west-1:123456789:key/abc-123
+      masterUsername: postgres
+      masterUserPassword:
+        namespace: database
+        name: rds-postgres-master
+        key: password
+      dbName: myapp_prod
+      port: 5432
+      # Using runicIndexer selectors
+      subnetGroup:
+        selector:
+          environment: prod
+      parameterGroup:
+        selector:
+          engine: postgres
+          environment: prod
+      securityGroups:
+        - selector:
+            access: database
+            environment: prod
+      publiclyAccessible: false
+      multiAZ: true
+      availabilityZone: us-west-1a
+      # Backup configuration
+      backupRetentionPeriod: 30
+      preferredBackupWindow: "03:00-04:00"
+      preferredMaintenanceWindow: "sun:04:00-sun:05:00"
+      copyTagsToSnapshot: true
+      # Performance and maintenance
+      autoMinorVersionUpgrade: false
+      deletionProtection: true
+      enablePerformanceInsights: true
+      performanceInsightsRetentionPeriod: 7
+      # Monitoring
+      monitoringInterval: 60
+      monitoringRoleARN: arn:aws:iam::123456789:role/rds-monitoring-role
+      enableCloudwatchLogsExports:
+        - postgresql
+        - upgrade
+      # Tags
+      tags:
+        - key: Name
+          value: prod-postgres-instance
+        - key: Environment
+          value: prod
+        - key: ManagedBy
+          value: kast-system
+        - key: CostCenter
+          value: database-team

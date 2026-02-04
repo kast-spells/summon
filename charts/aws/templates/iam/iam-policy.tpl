@@ -5,6 +5,8 @@ Licensed under the GNU GPL v3. See LICENSE file for details.
 {{- define "aws.iam-policy" }}
 {{- $root := index . 0 -}}
 {{- $glyphDefinition := index . 1}}
+{{- $k8sClusters := get (include "runicIndexer.runicIndexer" (list $root.Values.lexicon (default dict $glyphDefinition.selector) "k8s-cluster" $root.Values.chapter.name ) | fromJson) "results" }}
+{{- $k8sCluster := first $k8sClusters }}
 ---
 apiVersion: iam.services.k8s.aws/v1alpha1
 kind: Policy
@@ -38,11 +40,31 @@ spec:
         }
       ]
     }
-  {{- with $glyphDefinition.tags }}
   tags:
-    {{- range . }}
+    - key: Name
+      value: {{ default (include "common.name" $root) $glyphDefinition.name }}
+    - key: ManagedBy
+      value: ack-iam-controller
+    {{- if $k8sCluster }}
+      {{- if $k8sCluster.clusterName }}
+    - key: Cluster
+      value: {{ $k8sCluster.clusterName }}
+      {{- end }}
+      {{- if $k8sCluster.labels.environment }}
+    - key: Environment
+      value: {{ $k8sCluster.labels.environment }}
+      {{- end }}
+    {{- end }}
+    {{- if $root.Values.book }}
+    - key: Application
+      value: {{ $root.Values.book.name }}
+    {{- end }}
+    {{- with $glyphDefinition.component }}
+    - key: Component
+      value: {{ . }}
+    {{- end }}
+    {{- range $glyphDefinition.tags }}
     - key: {{ .key }}
       value: {{ .value }}
     {{- end }}
-  {{- end }}
 {{- end }}

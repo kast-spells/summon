@@ -1,0 +1,34 @@
+glyphs:
+  aws:
+    # DB Parameter Group - basic
+    dev-params:
+      type: db-parameter-group
+      family: postgres15
+      parameters:
+        max_connections: "200"
+        shared_buffers: "256MB"
+
+    # DB Subnet Group - basic with explicit subnet IDs
+    dev-subnets:
+      type: db-subnet-group
+      description: "Development subnet group"
+      subnetIDs:
+        - subnet-abc123
+        - subnet-def456
+
+    # DB Instance - basic configuration
+    dev-postgres:
+      type: db-instance
+      engine: postgres
+      engineVersion: "15"
+      instanceClass: db.t3.micro
+      allocatedStorage: 20
+      masterUsername: postgres
+      masterUserPassword:
+        name: rds-postgres-secret
+        key: password
+      dbName: myapp_dev
+      dbSubnetGroupName: dev-subnets
+      dbParameterGroupName: dev-params
+      vpcSecurityGroupIDs:
+        - sg-123456

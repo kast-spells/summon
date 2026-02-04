@@ -1,0 +1,43 @@
+appendix:
+  lexicon:
+    aws-secretsmanager-dev:
+      type: cluster-secret-store
+      provider: aws
+      region: us-west-1
+      auth: irsa
+
+glyphs:
+  external-secrets:
+    rds-postgres-master:
+      type: external-secret
+      name: rds-postgres-master
+      namespace: database
+      secretStore: aws-secretsmanager-dev
+      data:
+        - secretKey: password
+          remoteRef:
+            key: dev/security/external-secrets/publics/random-password-v2
+
+  postgresql:
+    rds-comprehensive:
+      type: aws-rds-instance
+      apiVersion: rds.services.k8s.aws/v1alpha1
+      kind: DBInstance
+      name: postgres-dev
+      namespace: database
+      spec:
+        dbInstanceIdentifier: postgres-dev
+        engine: postgres
+        engineVersion: "15.4"
+        dbInstanceClass: db.t3.micro
+        allocatedStorage: 20
+        storageType: gp3
+        masterUsername: postgres
+        masterUserPassword:
+          name: rds-postgres-master
+          key: password
+        dbSubnetGroupName: rds-private-subnets
+        vpcSecurityGroupIDs:
+          - sg-0123456789abcdef0
+        publiclyAccessible: false
+        backupRetentionPeriod: 7
